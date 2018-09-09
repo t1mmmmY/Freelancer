@@ -4,6 +4,9 @@ using System.Collections;
 [ExecuteInEditMode]
 public class Planet : MonoBehaviour
 {
+	[SerializeField] ScalableObject scalableObject;
+
+	public bool castShadows = true;
     public bool mobileShader = false;
     public bool atmosphere = true;
     public bool updateChangeInRealTime = true;
@@ -84,15 +87,26 @@ public class Planet : MonoBehaviour
         string[] keyword = new string[1];
         keyword[0] = mobileShader == true ? "MOBILE_ON" : "MOBILE_OFF";
         mat.shaderKeywords = keyword;
-        mat.SetVector("v3Translate", transform.position);
+		if (scalableObject != null)
+		{
+			mat.SetVector("v3Translate", scalableObject.realPosition);
+		}
+		else
+		{
+			mat.SetVector("v3Translate", transform.position);
+		}
         mat.SetFloat("fInnerRadius", innerRadius);
-        mat.SetFloat("shadowNumber", shadowNumber);
-        int i = -1;
-        while (++i < shadowNumber && shadow[i])
-        {
-            mat.SetVector("planetShadowPos" + i, shadow[i].position);
-            mat.SetFloat("planetShadowSca" + i, shadow[i].localScale.x);
-        }
+
+		if (castShadows)
+		{
+			mat.SetFloat("shadowNumber", shadowNumber);
+			int i = -1;
+			while (++i < shadowNumber && shadow[i])
+			{
+				mat.SetVector("planetShadowPos" + i, shadow[i].position);
+				mat.SetFloat("planetShadowSca" + i, shadow[i].localScale.x);
+			}
+		}
     }
 
     void InitMaterial(Material mat)
@@ -117,14 +131,25 @@ public class Planet : MonoBehaviour
         mat.SetFloat("fScaleDepth", scaleDepth);
         mat.SetFloat("fScaleOverScaleDepth", scale / scaleDepth);
         mat.SetFloat("fHdrExposure", hdrExposure);
-        mat.SetVector("v3Translate", transform.position);
-        mat.SetFloat("shadowNumber", shadowNumber);
-        int i = -1;
-        while (++i < shadowNumber && shadow[i])
-        {
-            mat.SetVector("planetShadowPos" + i, shadow[i].position);
-            mat.SetFloat("planetShadowSca" + i, shadow[i].localScale.x);
-        }
+		if (scalableObject != null)
+		{
+			mat.SetVector("v3Translate", scalableObject.realPosition);
+		}
+		else
+		{
+	        mat.SetVector("v3Translate", transform.position);
+		}
+
+		if (castShadows)
+		{
+			mat.SetFloat("shadowNumber", shadowNumber);
+			int i = -1;
+			while (++i < shadowNumber && shadow[i])
+			{
+				mat.SetVector("planetShadowPos" + i, shadow[i].position);
+				mat.SetFloat("planetShadowSca" + i, shadow[i].localScale.x);
+			}
+		}
     }
 }
 

@@ -231,7 +231,7 @@ public class Star : MonoBehaviour {
 			Color glowColor = GetColor();
 			if (DistanceManager.Instance != null)
 			{
-				glowColor.a = Mathf.Clamp01(Vector3.Distance(Vector3.zero, shipObject.realPosition) / (DistanceManager.Instance.maxDistance * 1000));
+				glowColor.a = Mathf.Clamp01(Vector3.Distance(Vector3.zero, shipObject.realPosition) / (DistanceManager.Instance.maxDistance * 100000));
 			}
 			glowRend.sharedMaterial.SetColor("_TintColor", glowColor);
 		}
