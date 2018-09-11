@@ -9,6 +9,8 @@ namespace Invector.CharacterController
     {
         #region variables
 
+		public Transform cameraTarget;
+
         [Header("Default Inputs")]
         public string horizontalInput = "Horizontal";
         public string verticallInput = "Vertical";
@@ -48,7 +50,7 @@ namespace Invector.CharacterController
                 cc.Init();
 
             tpCamera = FindObjectOfType<vThirdPersonCamera>();
-            if (tpCamera) tpCamera.SetMainTarget(this.transform);
+			if (tpCamera) tpCamera.SetMainTarget(cameraTarget);
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -157,7 +159,7 @@ namespace Invector.CharacterController
                     return;
                 if (tpCamera)
                 {
-                    tpCamera.SetMainTarget(this.transform);
+					tpCamera.SetMainTarget(cameraTarget);
                     tpCamera.Init();
                 }
             }            

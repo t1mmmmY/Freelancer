@@ -32,7 +32,8 @@ public class vThirdPersonCamera : MonoBehaviour
     [Tooltip("Debug purposes, lock the camera behind the character for better align the states")]
     public bool lockCamera;
     
-    public float rightOffset = 0f;
+	public float rightOffset = 0f;
+    public float forwardOffset = 0f;
     public float defaultDistance = 2.5f;
     public float height = 1.4f;
     public float smoothFollow = 10f;
@@ -68,7 +69,7 @@ public class vThirdPersonCamera : MonoBehaviour
     private float cullingDistance;
     private float checkHeightRadius = 0.4f;
     private float clipPlaneMargin = 0f;
-    private float forward = -1f;
+	private float forward = -1f;
     private float xMinLimit = -360f;
     private float xMaxLimit = 360f;
     private float cullingHeight = 0.2f;
@@ -174,7 +175,7 @@ public class vThirdPersonCamera : MonoBehaviour
         distance = Mathf.Lerp(distance, defaultDistance, smoothFollow * Time.deltaTime);
         //_camera.fieldOfView = fov;
         cullingDistance = Mathf.Lerp(cullingDistance, distance, Time.deltaTime);
-        var camDir = (forward * targetLookAt.forward) + (rightOffset * targetLookAt.right);
+		var camDir = (forward * targetLookAt.forward) + (rightOffset * targetLookAt.right);
 
         camDir = camDir.normalized;
 
@@ -221,14 +222,15 @@ public class vThirdPersonCamera : MonoBehaviour
 
         Quaternion newRot = Quaternion.Euler(mouseY, mouseX, 0);
         targetLookAt.rotation = Quaternion.Slerp(targetLookAt.rotation, newRot, smoothCameraRotation * Time.deltaTime);
-        transform.position = current_cPos + (camDir * (distance));
+		transform.position = current_cPos + (camDir * (distance)) + (forwardOffset * targetLookAt.forward);
         var rotation = Quaternion.LookRotation((lookPoint) - transform.position);
 
         //lookTargetOffSet = Vector3.Lerp(lookTargetOffSet, Vector3.zero, 1 * Time.fixedDeltaTime);
 
         //rotation.eulerAngles += rotationOffSet + lookTargetOffSet;
-        transform.rotation = rotation;
-        movementSpeed = Vector2.zero;
+
+		transform.rotation = rotation;
+		movementSpeed = Vector2.zero;
     }
 
 
