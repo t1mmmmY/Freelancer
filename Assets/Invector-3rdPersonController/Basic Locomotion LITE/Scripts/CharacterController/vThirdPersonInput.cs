@@ -38,6 +38,8 @@ namespace Invector.CharacterController
 
         #endregion
 
+		bool gravityEnabled = true;
+
         protected virtual void Start()
         {
             CharacterInit();
@@ -87,6 +89,19 @@ namespace Invector.CharacterController
                 StrafeInput();
                 JumpInput();
             }
+
+			if (Input.GetKeyDown(KeyCode.G))
+			{
+				gravityEnabled = !gravityEnabled;
+				if (gravityEnabled)
+				{
+					Physics.gravity = new Vector3(0, -9.81f, 0);
+				}
+				else
+				{
+					Physics.gravity = Vector3.zero;
+				}
+			}
         }
 
         #region Basic Locomotion Inputs      

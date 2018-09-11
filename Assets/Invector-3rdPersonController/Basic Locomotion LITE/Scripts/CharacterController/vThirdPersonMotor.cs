@@ -20,6 +20,8 @@ namespace Invector.CharacterController
         protected float groundMinDistance = 0.2f;
         [SerializeField]
         protected float groundMaxDistance = 0.5f;
+
+		public bool handleZeroGravity = true;
         #endregion
 
         #region Character Variables
@@ -270,7 +272,12 @@ namespace Invector.CharacterController
                 var velX = transform.right * velocity * direction;
                 velX.x = _rigidbody.velocity.x;
 
-                if (isStrafing)
+				if (Physics.gravity == Vector3.zero)
+				{
+					Vector3 v = vThirdPersonCamera.instance.transform.forward * speed;
+					_rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, v, 20f * Time.deltaTime);
+				}
+                else if (isStrafing)
                 {
                     Vector3 v = (transform.TransformDirection(new Vector3(input.x, 0, input.y)) * (velocity > 0 ? velocity : 1f));
                     v.y = _rigidbody.velocity.y;
@@ -300,14 +307,19 @@ namespace Invector.CharacterController
             }
             // apply extra force to the jump height   
             var vel = _rigidbody.velocity;
-            vel.y = jumpHeight;
+			vel.y = jumpHeight;
             _rigidbody.velocity = vel;
+
+//			if (isJumping && Physics.gravity == Vector3.zero)
+//			{
+//				isJumping = false;
+//			}
         }
 
         public void AirControl()
         {
             if (isGrounded) return;
-            if (!jumpFwdCondition) return;
+			if (!jumpFwdCondition && !handleZeroGravity) return;
 
             var velY = transform.forward * jumpForward * speed;
             velY.y = _rigidbody.velocity.y;
@@ -316,7 +328,12 @@ namespace Invector.CharacterController
 
             if (jumpAirControl)
             {
-                if (isStrafing)
+				if (Physics.gravity == Vector3.zero)
+				{
+					Vector3 v = vThirdPersonCamera.instance.transform.forward * speed * 2;
+					_rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, v, Time.deltaTime);
+				}
+                else if (isStrafing)
                 {
                     _rigidbody.velocity = new Vector3(velX.x, velY.y, _rigidbody.velocity.z);
                     var vel = transform.forward * (jumpForward * speed) + transform.right * (jumpForward * direction);
@@ -361,6 +378,11 @@ namespace Invector.CharacterController
             else
                 _capsuleCollider.material = slippyPhysics;
 
+			if (Physics.gravity == Vector3.zero)
+			{
+				_capsuleCollider.material = slippyPhysics;
+			}
+
             var magVel = (float)System.Math.Round(new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z).magnitude, 2);
             magVel = Mathf.Clamp(magVel, 0, 1);
 
@@ -370,7 +392,7 @@ namespace Invector.CharacterController
             // clear the checkground to free the character to attack on air                
             var onStep = StepOffset();
 
-            if (groundDistance <= 0.05f)
+			if (groundDistance <= 0.05f && Physics.gravity != Vector3.zero)
             {
                 isGrounded = true;
                 Sliding();
@@ -383,10 +405,10 @@ namespace Invector.CharacterController
                     // check vertical velocity
                     verticalVelocity = _rigidbody.velocity.y;
                     // apply extra gravity when falling
-                    if (!onStep && !isJumping)
+					if ((!onStep && !isJumping) || handleZeroGravity)
                         _rigidbody.AddForce(transform.up * extraGravity * Time.deltaTime, ForceMode.VelocityChange);
                 }
-                else if (!onStep && !isJumping)
+				else if ((!onStep && !isJumping) || handleZeroGravity)
                 {
                     _rigidbody.AddForce(transform.up * (extraGravity * 2 * Time.deltaTime), ForceMode.VelocityChange);
                 }
@@ -448,7 +470,7 @@ namespace Invector.CharacterController
                 slideVelocity = Mathf.Clamp(slideVelocity, 0, 10);
                 _rigidbody.velocity = new Vector3(_rigidbody.velocity.x, -slideVelocity, _rigidbody.velocity.z);
             }
-            else
+			else if (Physics.gravity != Vector3.zero)
             {
                 isSliding = false;
                 isGrounded = true;
@@ -457,7 +479,7 @@ namespace Invector.CharacterController
 
         bool StepOffset()
         {
-            if (input.sqrMagnitude < 0.1 || !isGrounded) return false;
+			if (input.sqrMagnitude < 0.1 || (!isGrounded && !handleZeroGravity)) return false;
 
             var _hit = new RaycastHit();
             var _movementDirection = isStrafing && input.magnitude > 0 ? (transform.right * input.x + transform.forward * input.y).normalized : transform.forward;

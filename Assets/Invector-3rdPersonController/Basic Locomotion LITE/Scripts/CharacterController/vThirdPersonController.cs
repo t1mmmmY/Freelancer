@@ -26,7 +26,8 @@ namespace Invector.CharacterController
         public virtual void Jump()
         {
             // conditions to do this action
-            bool jumpConditions = isGrounded && !isJumping;
+			bool jumpConditions = (isGrounded && !isJumping);
+//			bool jumpConditions = (isGrounded && !isJumping) || handleZeroGravity;
             // return if jumpCondigions is false
             if (!jumpConditions) return;
             // trigger jump behaviour
