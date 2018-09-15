@@ -369,6 +369,13 @@ namespace Invector.CharacterController
 
         void CheckGround()
         {
+			if (Physics.gravity == Vector3.zero)
+			{
+				_capsuleCollider.material = slippyPhysics;
+				isGrounded = false;
+				return;
+			}
+
 			if (lockMovement)
 			{
 				isGrounded = true;
@@ -384,11 +391,7 @@ namespace Invector.CharacterController
                 _capsuleCollider.material = frictionPhysics;
             else
                 _capsuleCollider.material = slippyPhysics;
-
-			if (Physics.gravity == Vector3.zero)
-			{
-				_capsuleCollider.material = slippyPhysics;
-			}
+			
 
             var magVel = (float)System.Math.Round(new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z).magnitude, 2);
             magVel = Mathf.Clamp(magVel, 0, 1);

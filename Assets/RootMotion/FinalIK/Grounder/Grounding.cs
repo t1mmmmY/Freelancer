@@ -236,7 +236,13 @@ namespace RootMotion.FinalIK {
 				if (leg.IKOffset > lowestOffset) lowestOffset = leg.IKOffset;
 				if (leg.IKOffset < highestOffset) highestOffset = leg.IKOffset;
 
-				if (leg.isGrounded) isGrounded = true;
+				if (leg.isGrounded)
+				{
+					if (Physics.gravity != Vector3.zero)
+					{
+						isGrounded = true;
+					}
+				}
 			}
 			
 			// Precess pelvis
