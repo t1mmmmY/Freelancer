@@ -309,15 +309,15 @@ namespace Invector.CharacterController
             var vel = _rigidbody.velocity;
 			vel.y = jumpHeight;
             _rigidbody.velocity = vel;
-
-//			if (isJumping && Physics.gravity == Vector3.zero)
-//			{
-//				isJumping = false;
-//			}
         }
 
         public void AirControl()
         {
+			if (lockMovement)
+			{
+				return;
+			}
+
             if (isGrounded) return;
 			if (!jumpFwdCondition && !handleZeroGravity) return;
 
@@ -330,7 +330,7 @@ namespace Invector.CharacterController
             {
 				if (Physics.gravity == Vector3.zero)
 				{
-					Vector3 v = vThirdPersonCamera.instance.transform.forward * speed * 2;
+					Vector3 v = vThirdPersonCamera.instance.transform.forward * speed * 4;
 					_rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, v, Time.deltaTime);
 
 				}
@@ -369,6 +369,12 @@ namespace Invector.CharacterController
 
         void CheckGround()
         {
+			if (lockMovement)
+			{
+				isGrounded = true;
+				return;
+			}
+
             CheckGroundDistance();
 
             // change the physics material to very slip when not grounded or maxFriction when is

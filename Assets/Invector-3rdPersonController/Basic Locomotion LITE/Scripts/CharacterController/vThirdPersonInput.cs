@@ -40,6 +40,9 @@ namespace Invector.CharacterController
 
 		bool gravityEnabled = true;
 
+		public bool enableMovement = true;
+		public bool enableLook = true;
+
         protected virtual void Start()
         {
             CharacterInit();
@@ -90,18 +93,18 @@ namespace Invector.CharacterController
                 JumpInput();
             }
 
-			if (Input.GetKeyDown(KeyCode.G))
-			{
-				gravityEnabled = !gravityEnabled;
-				if (gravityEnabled)
-				{
-					Physics.gravity = new Vector3(0, -9.81f, 0);
-				}
-				else
-				{
-					Physics.gravity = Vector3.zero;
-				}
-			}
+//			if (Input.GetKeyDown(KeyCode.G))
+//			{
+//				gravityEnabled = !gravityEnabled;
+//				if (gravityEnabled)
+//				{
+//					Physics.gravity = new Vector3(0, -9.81f, 0);
+//				}
+//				else
+//				{
+//					Physics.gravity = Vector3.zero;
+//				}
+//			}
         }
 
         #region Basic Locomotion Inputs      
@@ -144,6 +147,12 @@ namespace Invector.CharacterController
             }
         }
 
+
+		public void ShowCursor()
+		{
+			if (!Cursor.visible)
+				Cursor.visible = true;
+		}
         #endregion
 
         #region Camera Methods

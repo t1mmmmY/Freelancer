@@ -9,6 +9,7 @@ public class PlayerShipController : SpaceObject
 	[SerializeField] Text speedLabel;
 	[SerializeField] Text rotationLabel;
 	[SerializeField] Text gearLabel;
+	[SerializeField] GameObject shipUI;
 	[SerializeField] Image cursor;
 	[SerializeField] float changeVelocitySpeed = 10;
 	[SerializeField] float maxSpeed = 10000;
@@ -18,22 +19,41 @@ public class PlayerShipController : SpaceObject
 	[SerializeField] float breakSpeed = 100;
 	[SerializeField] float rotationSpeed = 10;
 
+	[SerializeField] bool invertY = false;
+
 	float acceleration = 0;
 	float speed = 0;
 	int gear = 1;
 	float speedMultiplier = 1;
-	bool rotate = true;
+
+	public bool rotate = false;
+	private bool pilotOnBoard = false;
 
 	void Update()
 	{
-		HandleSpeedMultiplier();
-		HandleKeyboardInput();
-		if (rotate)
+		if (pilotOnBoard)
 		{
-			HandleMouseInput();
+			HandleSpeedMultiplier();
+			HandleKeyboardInput();
+			if (rotate)
+			{
+				HandleMouseInput();
+			}
+			UpdatePosition();
+			UpdateGUI();
 		}
-		UpdatePosition();
-		UpdateGUI();
+	}
+
+	public void PilotOnBoard()
+	{
+		pilotOnBoard = true;
+		shipUI.SetActive(true);
+	}
+
+	public void LeaveBoard()
+	{
+		pilotOnBoard = false;
+		shipUI.SetActive(false);
 	}
 
 	void HandleSpeedMultiplier()
@@ -104,6 +124,10 @@ public class PlayerShipController : SpaceObject
 		Vector2 mousePosition = Input.mousePosition;
 		mousePosition.x = (mousePosition.x - Screen.width / 2) / Screen.width;
 		mousePosition.y = -(mousePosition.y - Screen.height / 2) / Screen.height;
+		if (invertY)
+		{
+			mousePosition.y = -mousePosition.y;
+		}
 
 		transform.Rotate(mousePosition.y * rotationSpeed * Time.deltaTime, mousePosition.x * rotationSpeed * Time.deltaTime, 0);
 		rotationLabel.text = mousePosition.ToString();
