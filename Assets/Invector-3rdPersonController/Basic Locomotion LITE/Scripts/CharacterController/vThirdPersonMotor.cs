@@ -332,6 +332,7 @@ namespace Invector.CharacterController
 				{
 					Vector3 v = vThirdPersonCamera.instance.transform.forward * speed * 2;
 					_rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, v, Time.deltaTime);
+
 				}
                 else if (isStrafing)
                 {
