@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Invector.CharacterController;
+using UnityStandardAssets.Characters.FirstPerson;
 
 public class GameplayCharacter : MonoBehaviour 
 {
-	[SerializeField] vThirdPersonController controller;
-	[SerializeField] vThirdPersonInput input;
-	[SerializeField] vThirdPersonCamera characterCamera;
+
+	[SerializeField] RigidbodyFirstPersonController controller;
+//	[SerializeField] vThirdPersonController controller;
+//	[SerializeField] vThirdPersonInput input;
+//	[SerializeField] vThirdPersonCamera characterCamera;
 	[SerializeField] Collider characterCollider;
 	[SerializeField] Rigidbody characterRigidbody;
-	[SerializeField] Animator characterAnimator;
+//	[SerializeField] Animator characterAnimator;
 	bool acting = false;
 
 	bool isPilot = false;
@@ -26,9 +29,10 @@ public class GameplayCharacter : MonoBehaviour
 			if (Input.GetKeyDown(KeyCode.Tab))
 			{
 				rotateShip = !rotateShip;
-				input.enabled = !rotateShip;
+				controller.inputEnabled = !rotateShip;
+//				input.enabled = !rotateShip;
 				shipController.rotate = rotateShip;
-				characterCamera.enabled = !rotateShip;
+//				characterCamera.enabled = !rotateShip;
 				Cursor.visible = rotateShip;
 				Cursor.lockState = CursorLockMode.None;
 			}
@@ -59,9 +63,10 @@ public class GameplayCharacter : MonoBehaviour
 		}
 
 		rotateShip = false;
-		input.enabled = !rotateShip;
+		controller.inputEnabled = !rotateShip;
+//		input.enabled = !rotateShip;
 		shipController.rotate = rotateShip;
-		characterCamera.enabled = !rotateShip;
+//		characterCamera.enabled = !rotateShip;
 		Cursor.visible = rotateShip;
 		Cursor.lockState = CursorLockMode.None;
 		GetUpFromChair(pilotSeat.getUpPosition, LeavePilotChair);
@@ -90,7 +95,7 @@ public class GameplayCharacter : MonoBehaviour
 		controller.lockMovement = true;
 		characterCollider.enabled = false;
 		characterRigidbody.isKinematic = true;
-		characterAnimator.enabled = false;
+//		characterAnimator.enabled = false;
 		StartCoroutine(SitInChairCoroutine(chair, onFinishAnimation));
 	}
 
@@ -163,6 +168,6 @@ public class GameplayCharacter : MonoBehaviour
 		controller.lockMovement = false;
 		characterCollider.enabled = true;
 		characterRigidbody.isKinematic = false;
-		characterAnimator.enabled = true;
+//		characterAnimator.enabled = true;
 	}
 }
