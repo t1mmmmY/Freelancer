@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ObjectsVisor : MonoBehaviour 
 {
 	[SerializeField] Camera playerCamera;
+	[SerializeField] RectTransform canvasRect;
 	[SerializeField] SpaceObjectLabel labelPrefab;
 	[SerializeField] Transform content;
 	List<SpaceObjectLabel> allLabels = new List<SpaceObjectLabel>();
@@ -55,8 +56,10 @@ public class ObjectsVisor : MonoBehaviour
 				Vector3 position = label.GetStarPosition();
 				position = playerCamera.WorldToScreenPoint(position);
 				position.z = 0;
-				position.x -= Screen.width / 2;
-				position.y -= Screen.height / 2;
+//				position.x -= 1024;
+//				position.y -= 1024;
+				position.x -= canvasRect.sizeDelta.x / 2;
+				position.y -= canvasRect.sizeDelta.y / 2;
 				label.transform.localPosition = position;
 			}
 		}
