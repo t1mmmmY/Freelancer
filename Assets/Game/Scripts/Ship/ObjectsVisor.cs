@@ -13,6 +13,8 @@ public class ObjectsVisor : MonoBehaviour
 
 	void Start()
 	{
+		GameManager.OnChangePlayerState += OnChangePlayerState;
+
 		foreach (StarSystemObject systemObject in StarSystem.Instance.stars)
 		{
 			allLabels.Add(CreateLabel(systemObject));
@@ -23,6 +25,16 @@ public class ObjectsVisor : MonoBehaviour
 		}
 
 		ChangeLabelsPosition();
+	}
+
+	void OnDestroy()
+	{
+		GameManager.OnChangePlayerState -= OnChangePlayerState;
+	}
+
+	void OnChangePlayerState(PlayerState playerState)
+	{
+		
 	}
 
 	SpaceObjectLabel CreateLabel(StarSystemObject systemObject)
@@ -42,10 +54,6 @@ public class ObjectsVisor : MonoBehaviour
 		foreach (SpaceObjectLabel label in allLabels)
 		{
 			float angle = Vector3.Angle(transform.forward, label.GetStarPosition());
-//			if (label.label.text == "Sun")
-//			{
-//				Debug.Log(angle.ToString());
-//			}
 			if (Mathf.Abs(angle) > 90)
 			{
 				label.gameObject.SetActive(false);
@@ -56,8 +64,6 @@ public class ObjectsVisor : MonoBehaviour
 				Vector3 position = label.GetStarPosition();
 				position = playerCamera.WorldToScreenPoint(position);
 				position.z = 0;
-//				position.x -= 1024;
-//				position.y -= 1024;
 				position.x -= canvasRect.sizeDelta.x / 2;
 				position.y -= canvasRect.sizeDelta.y / 2;
 				label.transform.localPosition = position;

@@ -90,11 +90,11 @@ public class DistanceManager : BaseSingleton<DistanceManager>
 				//			float angleSize = Mathf.Rad2Deg * 2 * Mathf.Asin(objectSize / 2 / Mathf.Pow(Mathf.Pow(realDistance, 2.0f) + Mathf.Pow(objectSize / 2, 2.0f), 0.5f));
 				//Wiki formula
 				float viewAngle = 2 * Mathf.Atan(obj.realSize * scaleFactor / (2 * realDistance));
-				if (viewAngle < 1.0f * Mathf.Deg2Rad)
+				if (viewAngle < 20.0f * Mathf.Deg2Rad)
 				{
 					if (obj.alwaysVisible)
 					{
-						viewAngle = 30.0f * Mathf.Deg2Rad;
+						viewAngle = 20.0f * Mathf.Deg2Rad;
 						obj.SwitchToLOD();
 					}
 					else

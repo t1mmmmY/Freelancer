@@ -7,7 +7,7 @@
 	SubShader
 	{
 //		Tags { "RenderType"="Opaque" }
-		Tags { "RenderType"="Opaque" "Queue" = "Geometry-1" }
+		Tags { "RenderType"="Opaque" "Queue" = "Geometry" }
 		LOD 100
 		ColorMask 0 // Don't write to any colour channels
 		ZWrite Off // Don't write to the Depth buffer
