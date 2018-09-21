@@ -17,20 +17,23 @@ namespace UnityStandardAssets.Characters.FirstPerson
             public float ForwardSpeed = 8.0f;   // Speed when walking forward
             public float BackwardSpeed = 4.0f;  // Speed when walking backwards
             public float StrafeSpeed = 4.0f;    // Speed when walking sideways
-            public float RunMultiplier = 2.0f;   // Speed when sprinting
+			public float RunMultiplier = 2.0f;   // Speed when sprinting
+            public float TiltSpeed = 4.0f;   // Speed of tilt
 	        public KeyCode RunKey = KeyCode.LeftShift;
             public float JumpForce = 30f;
 			public AnimationCurve SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f), new Keyframe(90.0f, 0.0f));
-            public AnimationCurve zeroGravityCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 0.5f), new Keyframe(0.0f, 0.5f), new Keyframe(90.0f, 0.5f));
-            [HideInInspector] public float CurrentTargetSpeed = 8f;
+			public AnimationCurve zeroGravityCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 0.5f), new Keyframe(0.0f, 0.5f), new Keyframe(90.0f, 0.5f));
+            public AnimationCurve TiltCurveModifier = new AnimationCurve(new Keyframe(0.0f, 0.5f), new Keyframe(1.0f, 1.0f));
+			[HideInInspector] public float CurrentTargetSpeed = 8f;
+			public float CurrentTiltSpeed = 0f;
 
 #if !MOBILE_INPUT
             private bool m_Running;
 #endif
 
-            public void UpdateDesiredTargetSpeed(Vector2 input)
+            public void UpdateDesiredTargetSpeed(Vector3 input)
             {
-	            if (input == Vector2.zero) return;
+	            if (input == Vector3.zero) return;
 				if (input.x > 0 || input.x < 0)
 				{
 					//strafe
@@ -46,6 +49,12 @@ namespace UnityStandardAssets.Characters.FirstPerson
 					//forwards
 					//handled last as if strafing and moving forward at the same time forwards speed should take precedence
 					CurrentTargetSpeed = ForwardSpeed;
+				}
+
+				CurrentTiltSpeed = input.z * TiltSpeed;
+				if (Mathf.Abs(CurrentTiltSpeed) < 0.1f * TiltSpeed)
+				{
+					CurrentTiltSpeed = 0;
 				}
 #if !MOBILE_INPUT
 	            if (Input.GetKey(RunKey))
@@ -94,6 +103,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private bool m_Jump, m_PreviouslyGrounded, m_Jumping, m_IsGrounded;
 
 		bool zeroGravity = false;
+		float tiltTime = 0;
 
         public Vector3 Velocity
         {
@@ -162,9 +172,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			zeroGravity = Physics.gravity == Vector3.zero;
 
             GroundCheck();
-            Vector2 input = GetInput();
+            Vector3 input = GetInput();
 
-			if ((Mathf.Abs(input.x) > float.Epsilon || Mathf.Abs(input.y) > float.Epsilon) && (advancedSettings.airControl || m_IsGrounded || zeroGravity))
+			if ((Mathf.Abs(input.x) > float.Epsilon || Mathf.Abs(input.y) > float.Epsilon || Mathf.Abs(input.z) > float.Epsilon) && 
+				(advancedSettings.airControl || m_IsGrounded || zeroGravity))
             {
                 // always move along the camera forward as it is the direction that it being aimed at
                 Vector3 desiredMove = cam.transform.forward*input.y + cam.transform.right*input.x;
@@ -178,6 +189,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 {
                     m_RigidBody.AddForce(desiredMove*SlopeMultiplier(), ForceMode.Impulse);
                 }
+
+
             }
 
 			if (m_IsGrounded && !zeroGravity)
@@ -192,7 +205,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
                     m_Jumping = true;
                 }
 
-                if (!m_Jumping && Mathf.Abs(input.x) < float.Epsilon && Mathf.Abs(input.y) < float.Epsilon && m_RigidBody.velocity.magnitude < 1f)
+				if (!m_Jumping && Mathf.Abs(input.x) < float.Epsilon && Mathf.Abs(input.y) < float.Epsilon && Mathf.Abs(input.z) < float.Epsilon &&
+					m_RigidBody.velocity.magnitude < 1f)
                 {
                     m_RigidBody.Sleep();
                 }
@@ -228,6 +242,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			}
         }
 
+		private float TiltMultiplier()
+		{
+			return movementSettings.TiltCurveModifier.Evaluate(tiltTime);
+		}
+
 
         private void StickToGroundHelper()
         {
@@ -244,13 +263,14 @@ namespace UnityStandardAssets.Characters.FirstPerson
         }
 
 
-        private Vector2 GetInput()
+        private Vector3 GetInput()
         {
             
-            Vector2 input = new Vector2
+            Vector3 input = new Vector3
                 {
                     x = CrossPlatformInputManager.GetAxis("Horizontal"),
-                    y = CrossPlatformInputManager.GetAxis("Vertical")
+					y = CrossPlatformInputManager.GetAxis("Vertical"),
+                    z = CrossPlatformInputManager.GetAxis("Tilt")
                 };
 			movementSettings.UpdateDesiredTargetSpeed(input);
             return input;
@@ -265,7 +285,20 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // get the rotation before it's changed
             float oldYRotation = transform.eulerAngles.y;
 
-            mouseLook.LookRotation (transform, cam.transform);
+            mouseLook.LookRotation(transform, cam.transform);
+
+//			if (movementSettings.CurrentTiltSpeed != 0)
+//			{
+////				transform.Rotate(transform.forward, movementSettings.CurrentTiltSpeed * TiltMultiplier(), Space.Self);
+//				m_RigidBody.AddRelativeTorque(0, 0, movementSettings.CurrentTiltSpeed * TiltMultiplier(), ForceMode.VelocityChange);
+//				tiltTime += Time.deltaTime;
+//				tiltTime = Mathf.Clamp01(tiltTime);
+//			}
+//			else
+//			{
+//				m_RigidBody.angularVelocity = Vector3.Lerp(m_RigidBody.angularVelocity, Vector3.zero, Time.deltaTime * 2);
+//				tiltTime = 0;
+//			}
 
             if (m_IsGrounded || advancedSettings.airControl)
             {

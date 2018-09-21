@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerShipController : SpaceObject 
 {
@@ -17,7 +18,11 @@ public class PlayerShipController : SpaceObject
 	[SerializeField] float maxAccel = 100;
 	[SerializeField] float minAccel = -10;
 	[SerializeField] float breakSpeed = 100;
-	[SerializeField] float rotationSpeed = 10;
+//	[SerializeField] float rotationSpeed = 10;
+
+	public float XSensitivity = 2f;
+	public float YSensitivity = 1f;
+	public float ZSensitivity = 2f;
 
 	[SerializeField] bool invertY = false;
 
@@ -28,6 +33,14 @@ public class PlayerShipController : SpaceObject
 
 	public bool rotate = false;
 	private bool pilotOnBoard = false;
+
+	private Quaternion m_ShipTargetRot;
+	float smoothTime = 16f;
+
+	void Start()
+	{
+		m_ShipTargetRot = transform.localRotation;
+	}
 
 	void Update()
 	{
@@ -129,7 +142,16 @@ public class PlayerShipController : SpaceObject
 			mousePosition.y = -mousePosition.y;
 		}
 
-		transform.Rotate(mousePosition.y * rotationSpeed * Time.deltaTime, mousePosition.x * rotationSpeed * Time.deltaTime, 0);
+		float yRot = mousePosition.x * YSensitivity;
+		float xRot = mousePosition.y * XSensitivity;
+		float zRot = CrossPlatformInputManager.GetAxis("Tilt") * ZSensitivity;
+
+		m_ShipTargetRot *= Quaternion.Euler(xRot, yRot, zRot);
+
+		transform.localRotation = Quaternion.Slerp(transform.localRotation, m_ShipTargetRot,
+				smoothTime * Time.deltaTime);
+		
+//		transform.Rotate(mousePosition.y * rotationSpeed * Time.deltaTime, mousePosition.x * rotationSpeed * Time.deltaTime, 0);
 		rotationLabel.text = mousePosition.ToString();
 	}
 
